@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <fstream>
 #include <vector>
 using namespace std;
 
@@ -6,18 +7,11 @@ using namespace std;
 
 int main()
 {
-	vector<char> arr_kitu;
-	vector<int> arr_tanso;
-	DocFile("string.txt", arr_kitu, arr_tanso);
+	NenTapTin("TapTin.txt");
+	cout << "Da nen tap tin!\n";
 
-	vector<Node*> arr_Node;
-
-	TaoCay(arr_tanso, arr_Node);
-
-	//vector<string> arr_bangma;
-
-
-	delete arr_Node[0];
+	NenThuMucTapTin("ThuMucTapTin");
+	cout << "Da nen thu muc tap tin!\n";
 
 	system("pause");
 	return 0;
