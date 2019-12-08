@@ -9,20 +9,16 @@ using namespace std;
 #include "Nendulieu.h"
 
 //Hàm đọc file và đếm số kí tự cùng tần số tương ứng
-//Hàm trả về 0 nếu không đọc được file và bỏ qua không đọc file đã nén
-int DocFile(string tenFile, string& str, vector<char>& arr_kitu, vector<int>& arr_tanso)
+//Hàm trả về 0 nếu không đọc được file
+void DocFile(string tenFile, string& str, vector<char>& arr_kitu, vector<int>& arr_tanso)
 {
-	ifstream FileIn;
-	FileIn.open(tenFile, ios_base::in);
+	ifstream FileIn(tenFile);
 
 	if (FileIn.fail())
 	{
 		cout << "Khong mo duoc file nay!" << endl;
-		return 0;
+		return;
 	}
-
-	if (tenFile.find("_Nen.txt") != -1)
-		return 0;
 
 	getline(FileIn, str);
 
@@ -57,10 +53,7 @@ int DocFile(string tenFile, string& str, vector<char>& arr_kitu, vector<int>& ar
 
 		arr_tanso.push_back(dem);
 	}
-
 	FileIn.close();
-
-	return 1;
 }
 
 // Hàm tạo node cơ sở 
@@ -197,15 +190,28 @@ void TaoBangMa(vector<string>& arr_bangma, vector<char> arr_kitu, Node* p)
 	}
 }
 
-//Hàm nén tập tin
+//Hàm tính chiều cao cây huffman
+int TinhChieuCao(Node* p)
+{
+	if (p != NULL)
+	{
+		int a = TinhChieuCao(p->left);
+		int b = TinhChieuCao(p->right);
+		int max = (a > b) ? a : b;
+		return 1 + max;
+	}
+	return 0;
+}
+
+//Hàm nén tập tin và giải nén tập tin
 void NenTapTin(string tenFile)
 {
+	//Xây dựng cây huffman và tạo bảng mã
 	vector<char> arr_kitu;
 	vector<int> arr_tanso;
 
 	string str;
-	if (DocFile(tenFile, str, arr_kitu, arr_tanso) == 0)
-		return;
+	DocFile(tenFile, str, arr_kitu, arr_tanso);
 
 	vector<Node*> arr_Node;
 
@@ -215,12 +221,10 @@ void NenTapTin(string tenFile)
 
 	TaoBangMa(arr_bangma, arr_kitu, arr_Node[0]);
 
-	
+	//Mở file để nén tập tin
 	string myfile = tenFile.insert(tenFile.length() - 4, "_Nen");
 
-	ofstream FileOut;
-
-	FileOut.open(myfile);
+	ofstream FileOut(myfile);
 
 	for (int i = 0; i < str.length(); i++)
 	{
@@ -233,7 +237,69 @@ void NenTapTin(string tenFile)
 			}
 		}
 	}
+	delete arr_Node[0];
+}
 
+//Hàm giải nén tập tin
+void GiaiNenTapTin(string tenFile)
+{
+	//Xây dựng cây huffman và tạo bảng mã
+	vector<char> arr_kitu;
+	vector<int> arr_tanso;
+
+	string str;
+	DocFile(tenFile, str, arr_kitu, arr_tanso);
+
+	vector<Node*> arr_Node;
+
+	TaoCay(arr_tanso, arr_kitu, arr_Node);
+
+	vector<string> arr_bangma;
+
+	TaoBangMa(arr_bangma, arr_kitu, arr_Node[0]);
+
+	//Mở file đã nén
+	string myfile = tenFile.insert(tenFile.length() - 4, "_Nen");
+
+	ifstream FileIn(myfile);
+
+	string stringNen;
+
+	getline(FileIn, stringNen);
+
+	FileIn.close();
+
+	//Giải nén
+	int chieuCao = TinhChieuCao(arr_Node[0]);
+
+	string fileGiaiNen = tenFile.insert(tenFile.length() - 7, "Giai");
+
+	ofstream FileOut(fileGiaiNen);
+
+	for (int i = 0; i < stringNen.length(); i++)
+	{
+		string temp = "";
+
+		for (int j = 0; j < chieuCao; j++)
+		{
+			temp += stringNen[i++];
+
+			int check = 0;
+
+			for (int k = 0; k < arr_bangma.size(); k++)
+			{
+				if (temp.compare(arr_bangma[k]) == 0)
+				{
+					FileOut << arr_kitu[k];
+					check = 1;
+					break;
+				}
+			}
+			if (check == 1)
+				break;
+		}
+		i--;
+	}
 	FileOut.close();
 
 	delete arr_Node[0];
@@ -246,8 +312,7 @@ void NenTapTin_ThuMuc(string tenFile)
 	vector<int> arr_tanso;
 
 	string str;
-	if (DocFile("D:/Do an 2_CTDL/18120581_18120560/NenDuLieu/ThuMucTapTin/" + tenFile, str, arr_kitu, arr_tanso) == 0)
-		return;
+	DocFile("D:/Do an 2_CTDL/18120581_18120560/NenDuLieu/ThuMucTapTin/" + tenFile, str, arr_kitu, arr_tanso);
 
 	vector<Node*> arr_Node;
 
@@ -275,13 +340,77 @@ void NenTapTin_ThuMuc(string tenFile)
 			}
 		}
 	}
-
 	FileOut.close();
 
 	delete arr_Node[0];
 }
 
-//Hàm nén thư mục chứa nhiều tập tin
+//Hàm giải nén tập tin thư mục
+void GiaiNenTapTin_ThuMuc(string tenFile)
+{
+	//Xây dựng cây huffman và tạo bảng mã
+	vector<char> arr_kitu;
+	vector<int> arr_tanso;
+
+	string str;
+	DocFile("D:/Do an 2_CTDL/18120581_18120560/NenDuLieu/ThuMucTapTin/" + tenFile, str, arr_kitu, arr_tanso);
+
+	vector<Node*> arr_Node;
+
+	TaoCay(arr_tanso, arr_kitu, arr_Node);
+
+	vector<string> arr_bangma;
+
+	TaoBangMa(arr_bangma, arr_kitu, arr_Node[0]);
+
+	//Mở file đã nén
+	string myfile = tenFile.insert(tenFile.length() - 4, "_Nen");
+
+	ifstream FileIn("D:/Do an 2_CTDL/18120581_18120560/NenDuLieu/ThuMucTapTin/" + myfile);
+
+	string stringNen;
+
+	getline(FileIn, stringNen);
+
+	FileIn.close();
+
+	//Giải nén
+	int chieuCao = TinhChieuCao(arr_Node[0]);
+
+	string fileGiaiNen = tenFile.insert(tenFile.length() - 7, "Giai");
+
+	ofstream FileOut("D:/Do an 2_CTDL/18120581_18120560/NenDuLieu/ThuMucTapTin/" + fileGiaiNen);
+
+	for (int i = 0; i < stringNen.length(); i++)
+	{
+		string temp = "";
+
+		for (int j = 0; j < chieuCao; j++)
+		{
+			temp += stringNen[i++];
+
+			int check = 0;
+
+			for (int k = 0; k < arr_bangma.size(); k++)
+			{
+				if (temp.compare(arr_bangma[k]) == 0)
+				{
+					FileOut << arr_kitu[k];
+					check = 1;
+					break;
+				}
+			}
+			if (check == 1)
+				break;
+		}
+		i--;
+	}
+	FileOut.close();
+
+	delete arr_Node[0];
+}
+
+//Hàm nén thư mục chứa nhiều tập tin và giải nén
 void NenThuMucTapTin(const string& name)
 {
 	string pattern(name);
@@ -305,5 +434,6 @@ void NenThuMucTapTin(const string& name)
 	for (int i = 2; i < arr_file.size(); i++)
 	{
 		NenTapTin_ThuMuc(arr_file[i]);
+		GiaiNenTapTin_ThuMuc(arr_file[i]);
 	}
 }

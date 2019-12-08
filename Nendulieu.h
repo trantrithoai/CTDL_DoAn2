@@ -12,7 +12,7 @@ struct Node
 
 //Hàm đọc file và đếm số kí tự cùng tần số tương ứng
 //Hàm trả về 0 nếu không đọc được file và bỏ qua không đọc file đã nén
-int DocFile(string tenFile, string& str, vector<char>& arr_kitu, vector<int>& arr_tanso);
+void DocFile(string tenFile, string& str, vector<char>& arr_kitu, vector<int>& arr_tanso);
 
 // Hàm tạo node cơ sở 
 void TaoNodeCoSo(Node* p, int data, char kitu);
@@ -38,13 +38,22 @@ void TimMa(Node* p, char x, string& str);
 //Hàm tạo danh sách mã đường đi
 void TaoBangMa(vector<string>& arr_bangma, vector<char> arr_kitu, Node* p);
 
+//Hàm tính chiều cao cây huffman
+int TinhChieuCao(Node* p);
+
 //Hàm nén tập tin
 void NenTapTin(string tenFile);
+
+//Hàm giải nén tập tin
+void GiaiNenTapTin(string tenFile);
 
 //Hàm nén thư mục chứa nhiều tập tin
 void NenThuMucTapTin(const string& name);
 
 //Hàm nén tập tin trong thư mục
 void NenTapTin_ThuMuc(string tenFile);
+
+//Hàm giải nén tập tin thư mục
+void GiaiNenTapTin_ThuMuc(string tenFile);
 
 #endif // !_NENDULIEU_H_
